@@ -23,7 +23,7 @@ A beautiful and intuitive self-confidence tracker that helps you celebrate your 
 
 ## Development
 
-This project was developed with the assistance of AI (Claude) to create a polished, production-ready application with attention to detail in both functionality and design.
+This project was developed with the assistance of AI (Claude) as an experiment to explore the capabilities of AI in web development. The goal was to quickly create a polished, production-ready application while learning about AI's ability to handle both functionality and design details. The AI helped with everything from component structure to CSS styling, making the development process more efficient while maintaining high quality standards.
 
 ## Deployment
 
