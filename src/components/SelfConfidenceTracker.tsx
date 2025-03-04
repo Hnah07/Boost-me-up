@@ -165,7 +165,7 @@ export default function SelfConfidenceTracker() {
         </button>
       </motion.div>
       <div className="entries-container">
-        {entries.map((item, index) => (
+        {[...entries].reverse().map((entry, index) => (
           <motion.div
             key={index}
             initial={{ opacity: 0, x: -20 }}
@@ -185,8 +185,8 @@ export default function SelfConfidenceTracker() {
                 />
               ) : (
                 <>
-                  <span className="entry-text">{item.text}</span>
-                  <span className="entry-timestamp">{item.timestamp}</span>
+                  <span className="entry-text">{entry.text}</span>
+                  <span className="entry-timestamp">{entry.timestamp}</span>
                 </>
               )}
             </div>
@@ -195,7 +195,7 @@ export default function SelfConfidenceTracker() {
                 <button
                   onClick={handleSaveEdit}
                   className="edit-button"
-                  title="Opslaan"
+                  title="Save"
                 >
                   <svg
                     className="icon"
@@ -213,7 +213,7 @@ export default function SelfConfidenceTracker() {
                 <button
                   onClick={() => handleEditEntry(index)}
                   className="edit-button"
-                  title="Bewerken"
+                  title="Edit"
                 >
                   <svg
                     className="icon"
@@ -230,7 +230,7 @@ export default function SelfConfidenceTracker() {
               <button
                 onClick={() => handleDeleteEntry(index)}
                 className="delete-button"
-                title="Verwijderen"
+                title="Delete"
               >
                 <svg
                   className="icon"
