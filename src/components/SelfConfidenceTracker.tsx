@@ -104,8 +104,9 @@ export default function SelfConfidenceTracker() {
   };
 
   const handleEditEntry = (index: number) => {
-    setEditingIndex(index);
-    setEditText(entries[index].text);
+    const actualIndex = entries.length - 1 - index;
+    setEditingIndex(actualIndex);
+    setEditText(entries[actualIndex].text);
   };
 
   const handleSaveEdit = () => {
@@ -174,7 +175,7 @@ export default function SelfConfidenceTracker() {
             className="entry"
           >
             <div className="entry-content">
-              {editingIndex === index ? (
+              {editingIndex === entries.length - 1 - index ? (
                 <input
                   type="text"
                   value={editText}
@@ -191,7 +192,7 @@ export default function SelfConfidenceTracker() {
               )}
             </div>
             <div className="entry-buttons">
-              {editingIndex === index ? (
+              {editingIndex === entries.length - 1 - index ? (
                 <button
                   onClick={handleSaveEdit}
                   className="edit-button"
