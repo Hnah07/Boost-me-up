@@ -4,11 +4,13 @@ import "./LoginModal.css";
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onLogin: (username: string, password: string) => void;
+  onLogin: (email: string, password: string) => void;
   onRegister: (username: string, email: string, password: string) => void;
   onLogout: () => void;
   isLoggedIn: boolean;
   currentUsername?: string;
+  currentEmail?: string;
+  error?: string | null;
 }
 
 export default function LoginModal({
@@ -19,20 +21,33 @@ export default function LoginModal({
   onLogout,
   isLoggedIn,
   currentUsername,
+  currentEmail,
+  error,
 }: LoginModalProps) {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isRegistering, setIsRegistering] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError(null);
+
     if (isRegistering) {
+      if (!username.trim() || !email.trim() || !password.trim()) {
+        setFormError("Vul alle velden in");
+        return;
+      }
       onRegister(username, email, password);
     } else {
-      onLogin(username, password);
+      if (!email.trim() || !password.trim()) {
+        setFormError("Vul alle velden in");
+        return;
+      }
+      onLogin(email, password);
     }
   };
 
@@ -45,7 +60,9 @@ export default function LoginModal({
 
         {isLoggedIn ? (
           <div className="logged-in-content">
-            <h2>Hey, {currentUsername}!</h2>
+            <h2>
+              Hey, {currentUsername || currentEmail?.split("@")[0] || "gast"}!
+            </h2>
             <button onClick={onLogout} className="logout-button">
               Uitloggen
             </button>
@@ -53,22 +70,25 @@ export default function LoginModal({
         ) : (
           <form onSubmit={handleSubmit}>
             <h2>{isRegistering ? "Registreren" : "Inloggen"}</h2>
-            <input
-              type="text"
-              placeholder="Gebruikersnaam"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
+            {(error || formError) && (
+              <div className="error-message">{error || formError}</div>
+            )}
             {isRegistering && (
               <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="text"
+                placeholder="Gebruikersnaam"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
               />
             )}
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
             <input
               type="password"
               placeholder="Wachtwoord"

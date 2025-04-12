@@ -1,11 +1,13 @@
+import { Provider } from "react-redux";
+import { store } from "./store";
 import SelfConfidenceTracker from "./components/SelfConfidenceTracker";
 import "./App.css";
 
 function App() {
   return (
-    <div className="App">
+    <Provider store={store}>
       <SelfConfidenceTracker />
-    </div>
+    </Provider>
   );
 }
 

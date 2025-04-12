@@ -1,12 +1,17 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState, AppDispatch } from "../store";
+import { login, register, logout } from "../store/authSlice";
+import {
+  fetchEntries,
+  addEntry,
+  updateEntry,
+  deleteEntry,
+} from "../store/entriesSlice";
 import "./SelfConfidenceTracker.css";
 import LoginModal from "./LoginModal";
-
-interface Entry {
-  text: string;
-  timestamp: string;
-}
+import DeleteConfirmationModal from "./DeleteConfirmationModal";
 
 interface FloatingEntry {
   id: number;
@@ -19,18 +24,31 @@ interface FloatingEntry {
 
 export default function SelfConfidenceTracker() {
   const [entry, setEntry] = useState("");
-  const [entries, setEntries] = useState<Entry[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editText, setEditText] = useState("");
   const [floatingEntries, setFloatingEntries] = useState<FloatingEntry[]>([]);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [username, setUsername] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [entryToDelete, setEntryToDelete] = useState<string | null>(null);
+  const [entryToDeleteText, setEntryToDeleteText] = useState("");
+
+  const dispatch = useDispatch<AppDispatch>();
+  const {
+    isLoggedIn,
+    username,
+    email,
+    loading: authLoading,
+    error: authError,
+  } = useSelector((state: RootState) => state.auth);
+  const { entries, loading: entriesLoading } = useSelector(
+    (state: RootState) => state.entries
+  );
 
   useEffect(() => {
-    const savedEntries = JSON.parse(localStorage.getItem("entries") || "[]");
-    setEntries(savedEntries);
-  }, []);
+    if (isLoggedIn) {
+      dispatch(fetchEntries());
+    }
+  }, [dispatch, isLoggedIn]);
 
   useEffect(() => {
     if (entries.length === 0) return;
@@ -40,12 +58,10 @@ export default function SelfConfidenceTracker() {
       const x = Math.random() * (window.innerWidth - 300);
       const y = Math.random() * (window.innerHeight - 100);
 
-      console.log("Creating floating entry:", randomEntry); // Debug log
-
       const newFloatingEntry: FloatingEntry = {
         id: Date.now(),
-        text: randomEntry.text,
-        timestamp: randomEntry.timestamp,
+        text: randomEntry.content,
+        timestamp: formatDate(randomEntry.createdAt),
         x,
         y,
         visible: false,
@@ -53,7 +69,6 @@ export default function SelfConfidenceTracker() {
 
       setFloatingEntries((prev) => [...prev, newFloatingEntry]);
 
-      // Make the entry visible after a small delay
       setTimeout(() => {
         setFloatingEntries((prev) =>
           prev.map((entry) =>
@@ -64,7 +79,6 @@ export default function SelfConfidenceTracker() {
         );
       }, 100);
 
-      // Remove the entry after 10 seconds
       setTimeout(() => {
         setFloatingEntries((prev) =>
           prev.filter((entry) => entry.id !== newFloatingEntry.id)
@@ -72,13 +86,16 @@ export default function SelfConfidenceTracker() {
       }, 10000);
     };
 
-    // Show a new entry every 3 seconds
     const interval = setInterval(showRandomEntry, 3000);
-
     return () => clearInterval(interval);
   }, [entries]);
 
-  const formatDate = (date: Date) => {
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      console.error("Invalid date string:", dateString);
+      return "Invalid date";
+    }
     const options: Intl.DateTimeFormatOptions = {
       day: "numeric",
       month: "long",
@@ -91,47 +108,47 @@ export default function SelfConfidenceTracker() {
 
   const handleAddEntry = () => {
     if (!entry.trim()) return;
-    const newEntry: Entry = {
-      text: entry,
-      timestamp: formatDate(new Date()),
-    };
-    const newEntries = [...entries, newEntry];
-    setEntries(newEntries);
-    localStorage.setItem("entries", JSON.stringify(newEntries));
+    dispatch(addEntry(entry));
     setEntry("");
   };
 
-  const handleDeleteEntry = (index: number) => {
-    const newEntries = entries.filter((_, i) => i !== index);
-    setEntries(newEntries);
-    localStorage.setItem("entries", JSON.stringify(newEntries));
+  const handleDeleteClick = (entryId: string, entryText: string) => {
+    setEntryToDelete(entryId);
+    setEntryToDeleteText(entryText);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (entryToDelete) {
+      dispatch(deleteEntry(entryToDelete));
+      setIsDeleteModalOpen(false);
+      setEntryToDelete(null);
+      setEntryToDeleteText("");
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setIsDeleteModalOpen(false);
+    setEntryToDelete(null);
+    setEntryToDeleteText("");
   };
 
   const handleEditEntry = (index: number) => {
     const actualIndex = entries.length - 1 - index;
     setEditingIndex(actualIndex);
-    setEditText(entries[actualIndex].text);
+    setEditText(entries[actualIndex].content);
   };
 
   const handleSaveEdit = () => {
     if (editingIndex === null || !editText.trim()) return;
-
-    const newEntries = [...entries];
-    newEntries[editingIndex] = {
-      ...newEntries[editingIndex],
-      text: editText,
-    };
-    setEntries(newEntries);
-    localStorage.setItem("entries", JSON.stringify(newEntries));
+    const entryToUpdate = entries[editingIndex];
+    dispatch(updateEntry({ id: entryToUpdate._id, text: editText }));
     setEditingIndex(null);
     setEditText("");
   };
 
-  const handleLogin = (username: string, password: string) => {
-    // TODO: Implement actual login logic when backend is ready
-    setIsLoggedIn(true);
-    setUsername(username);
-    setIsModalOpen(false);
+  const handleLogin = (email: string, password: string) => {
+    dispatch(login({ email, password }));
   };
 
   const handleRegister = (
@@ -139,41 +156,51 @@ export default function SelfConfidenceTracker() {
     email: string,
     password: string
   ) => {
-    // TODO: Implement actual registration logic when backend is ready
-    setIsLoggedIn(true);
-    setUsername(username);
-    setIsModalOpen(false);
+    dispatch(register({ username, email, password }));
   };
 
   const handleLogout = () => {
-    setIsLoggedIn(false);
-    setUsername("");
-    setIsModalOpen(false);
+    dispatch(logout());
   };
+
+  if (authLoading) {
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>Logging in...</p>
+      </div>
+    );
+  }
+
+  if (entriesLoading) {
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>Loading entries...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container">
       <div className="floating-entries">
-        {floatingEntries.map((floatingEntry) => {
-          console.log("Rendering floating entry:", floatingEntry); // Debug log
-          return (
-            <div
-              key={floatingEntry.id}
-              className={`floating-entry ${
-                floatingEntry.visible ? "visible" : ""
-              }`}
-              style={{
-                left: floatingEntry.x,
-                top: floatingEntry.y,
-              }}
-            >
-              <div className="floating-entry-text">{floatingEntry.text}</div>
-              <div className="floating-entry-timestamp">
-                {floatingEntry.timestamp}
-              </div>
+        {floatingEntries.map((floatingEntry) => (
+          <div
+            key={floatingEntry.id}
+            className={`floating-entry ${
+              floatingEntry.visible ? "visible" : ""
+            }`}
+            style={{
+              left: floatingEntry.x,
+              top: floatingEntry.y,
+            }}
+          >
+            <div className="floating-entry-text">{floatingEntry.text}</div>
+            <div className="floating-entry-timestamp">
+              {floatingEntry.timestamp}
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
       <motion.div
         className="card"
@@ -187,7 +214,7 @@ export default function SelfConfidenceTracker() {
             className="username-display"
             onClick={() => setIsModalOpen(true)}
           >
-            {isLoggedIn ? username : "gast"}
+            {isLoggedIn ? username || "anoniempje" : "anoniempje"}
           </span>
         </h3>
         <h2 className="title">Wat heb je goed gedaan?</h2>
@@ -210,13 +237,15 @@ export default function SelfConfidenceTracker() {
         onRegister={handleRegister}
         onLogout={handleLogout}
         isLoggedIn={isLoggedIn}
-        currentUsername={username}
+        currentUsername={username || undefined}
+        currentEmail={email || undefined}
+        error={authError}
       />
 
       <div className="entries-container">
         {[...entries].reverse().map((entry, index) => (
           <motion.div
-            key={index}
+            key={entry._id}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3, delay: index * 0.1 }}
@@ -234,8 +263,10 @@ export default function SelfConfidenceTracker() {
                 />
               ) : (
                 <>
-                  <span className="entry-text">{entry.text}</span>
-                  <span className="entry-timestamp">{entry.timestamp}</span>
+                  <span className="entry-text">{entry.content}</span>
+                  <span className="entry-timestamp">
+                    {formatDate(entry.createdAt)}
+                  </span>
                 </>
               )}
             </div>
@@ -277,7 +308,7 @@ export default function SelfConfidenceTracker() {
                 </button>
               )}
               <button
-                onClick={() => handleDeleteEntry(index)}
+                onClick={() => handleDeleteClick(entry._id, entry.content)}
                 className="delete-button"
                 title="Delete"
               >
@@ -297,6 +328,13 @@ export default function SelfConfidenceTracker() {
           </motion.div>
         ))}
       </div>
+
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        entryText={entryToDeleteText}
+      />
     </div>
   );
 }
