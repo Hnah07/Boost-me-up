@@ -181,15 +181,16 @@ export default function SelfConfidenceTracker() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <div className="header">
-          <h2 className="title">Wat heb ik goed gedaan?</h2>
-          <div
+        <h3 className="greeting">
+          Hey,{" "}
+          <span
             className="username-display"
             onClick={() => setIsModalOpen(true)}
           >
-            {isLoggedIn ? username : "Hey, gast"}
-          </div>
-        </div>
+            {isLoggedIn ? username : "gast"}
+          </span>
+        </h3>
+        <h2 className="title">Wat heb je goed gedaan?</h2>
         <input
           type="text"
           value={entry}
