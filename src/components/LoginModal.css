@@ -1,0 +1,115 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  font-family: "Playfair Display", serif;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  width: 90%;
+  max-width: 400px;
+  position: relative;
+  border: 1px solid #fed7aa;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.close-button {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #ea580c;
+  font-family: "Playfair Display", serif;
+  padding: 0.25rem;
+  line-height: 1;
+}
+
+.modal-content h2 {
+  margin-bottom: 1.5rem;
+  color: #ea580c;
+  font-weight: 600;
+  text-align: center;
+}
+
+.modal-content form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.modal-content input {
+  padding: 0.75rem;
+  border: 1px solid #fed7aa;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-family: "Playfair Display", serif;
+  transition: border-color 0.2s;
+}
+
+.modal-content input:focus {
+  outline: none;
+  border-color: #ea580c;
+}
+
+.modal-content button {
+  padding: 0.75rem;
+  background-color: #ea580c;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  font-family: "Playfair Display", serif;
+}
+
+.modal-content button:hover {
+  background-color: #c2410c;
+}
+
+.switch-mode-button {
+  background-color: #ea580c;
+  color: white;
+  text-decoration: underline;
+  font-size: 0.875rem;
+  padding: 0.75rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-family: "Playfair Display", serif;
+  font-weight: 500;
+}
+
+.switch-mode-button:hover {
+  background-color: #c2410c;
+  color: white;
+  text-decoration: underline;
+}
+
+.logged-in-content {
+  text-align: center;
+}
+
+.logout-button {
+  margin-top: 1rem;
+  background-color: #fee2e2;
+  color: #ef4444;
+}
+
+.logout-button:hover {
+  background-color: #fecaca;
+}

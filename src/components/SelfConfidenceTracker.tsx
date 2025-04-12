@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import "./SelfConfidenceTracker.css";
+import LoginModal from "./LoginModal";
 
 interface Entry {
   text: string;
@@ -22,6 +23,9 @@ export default function SelfConfidenceTracker() {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editText, setEditText] = useState("");
   const [floatingEntries, setFloatingEntries] = useState<FloatingEntry[]>([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const savedEntries = JSON.parse(localStorage.getItem("entries") || "[]");
@@ -123,6 +127,30 @@ export default function SelfConfidenceTracker() {
     setEditText("");
   };
 
+  const handleLogin = (username: string, password: string) => {
+    // TODO: Implement actual login logic when backend is ready
+    setIsLoggedIn(true);
+    setUsername(username);
+    setIsModalOpen(false);
+  };
+
+  const handleRegister = (
+    username: string,
+    email: string,
+    password: string
+  ) => {
+    // TODO: Implement actual registration logic when backend is ready
+    setIsLoggedIn(true);
+    setUsername(username);
+    setIsModalOpen(false);
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setUsername("");
+    setIsModalOpen(false);
+  };
+
   return (
     <div className="container">
       <div className="floating-entries">
@@ -153,7 +181,15 @@ export default function SelfConfidenceTracker() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h2 className="title">Wat heb ik goed gedaan?</h2>
+        <div className="header">
+          <h2 className="title">Wat heb ik goed gedaan?</h2>
+          <div
+            className="username-display"
+            onClick={() => setIsModalOpen(true)}
+          >
+            {isLoggedIn ? username : "Hey, gast"}
+          </div>
+        </div>
         <input
           type="text"
           value={entry}
@@ -165,6 +201,17 @@ export default function SelfConfidenceTracker() {
           Toevoegen
         </button>
       </motion.div>
+
+      <LoginModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onLogin={handleLogin}
+        onRegister={handleRegister}
+        onLogout={handleLogout}
+        isLoggedIn={isLoggedIn}
+        currentUsername={username}
+      />
+
       <div className="entries-container">
         {[...entries].reverse().map((entry, index) => (
           <motion.div

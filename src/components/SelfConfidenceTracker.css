@@ -251,3 +251,23 @@ body {
     display: none;
   }
 }
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.username-display {
+  cursor: pointer;
+  text-decoration: underline;
+  color: #ea580c;
+  font-size: 0.875rem;
+  transition: color 0.2s;
+  font-family: "Playfair Display", serif;
+}
+
+.username-display:hover {
+  color: #c2410c;
+}
