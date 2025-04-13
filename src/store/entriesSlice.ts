@@ -192,7 +192,8 @@ const entriesSlice = createSlice({
       .addCase(
         addEntry.fulfilled,
         (state: EntriesState, action: PayloadAction<Entry>) => {
-          state.entries.push(action.payload);
+          state.loading = false;
+          state.entries = [action.payload, ...state.entries];
         }
       )
       .addCase(addEntry.rejected, (state: EntriesState, action) => {

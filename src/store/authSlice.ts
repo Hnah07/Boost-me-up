@@ -29,7 +29,7 @@ interface AuthState {
   token: string | null;
 }
 
-const API_BASE_URL = "https://api.boostmeup.hannahc.be/api";
+const API_BASE_URL = "https://boost-me-up-backend.onrender.com/api";
 
 // Load initial state from localStorage
 const loadInitialState = () => {
@@ -63,8 +63,6 @@ export const login = createAsyncThunk<
 >("auth/login", async ({ email, password }, { rejectWithValue }) => {
   try {
     console.log("Attempting login with:", { email });
-    console.log("API URL:", `${API_BASE_URL}/auth/login`);
-
     const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: "POST",
       headers: {
@@ -76,11 +74,6 @@ export const login = createAsyncThunk<
     });
 
     console.log("Login response status:", response.status);
-    console.log(
-      "Response headers:",
-      Object.fromEntries(response.headers.entries())
-    );
-
     const responseData = await response.json();
     console.log("Full response data:", responseData);
 
@@ -100,20 +93,14 @@ export const login = createAsyncThunk<
       },
     });
 
-    console.log("Profile response status:", profileResponse.status);
-    console.log(
-      "Profile response headers:",
-      Object.fromEntries(profileResponse.headers.entries())
-    );
-
     if (!profileResponse.ok) {
-      const profileError = await profileResponse.json();
-      console.error("Profile fetch error:", profileError);
-      throw new Error(profileError.message || "Failed to fetch user profile");
+      throw new Error("Failed to fetch user profile");
     }
 
     const profileData = await profileResponse.json();
-    console.log("Profile data:", profileData);
+    console.log("Profile response:", profileData);
+    console.log("User data from profile:", profileData.user);
+    console.log("Username from profile:", profileData.user?.username);
 
     return {
       ...responseData,
