@@ -4,7 +4,7 @@ import { resetEntries } from "./entriesSlice";
 
 interface AuthResponse {
   message: string;
-  token?: string;
+  token?: string | null;
   user?: {
     _id: string;
     username: string;
@@ -86,25 +86,19 @@ export const login = createAsyncThunk<
       return rejectWithValue(responseData.message || "Login failed");
     }
 
-    const profileResponse = await fetch(`${API_BASE_URL}/auth/profile`, {
-      credentials: "include",
-      headers: {
-        Accept: "application/json",
-      },
-    });
+    // Get the token from the response data
+    const token = responseData.token;
+    console.log("Token from response:", token);
 
-    if (!profileResponse.ok) {
-      throw new Error("Failed to fetch user profile");
+    if (!token) {
+      console.error("No token found in response");
+      return rejectWithValue("No token received from server");
     }
 
-    const profileData = await profileResponse.json();
-    console.log("Profile response:", profileData);
-    console.log("User data from profile:", profileData.user);
-    console.log("Username from profile:", profileData.user?.username);
-
     return {
-      ...responseData,
-      user: profileData.user,
+      message: responseData.message,
+      user: responseData.user,
+      token,
     };
   } catch (error) {
     console.error("Login error:", error);
@@ -235,6 +229,11 @@ const authSlice = createSlice({
         state.username = action.payload.user?.username || null;
         state.error = null;
         state.token = action.payload.token || null;
+        console.log("Stored token in state:", state.token);
+        console.log("Stored user in state:", {
+          email: state.email,
+          username: state.username,
+        });
         saveStateToLocalStorage(state);
       })
       .addCase(login.rejected, (state, action) => {

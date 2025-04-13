@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { RootState } from "../store";
 
 interface Entry {
   _id: string;
@@ -23,30 +24,47 @@ const initialState: EntriesState = {
 
 const API_BASE_URL = "https://api.boostmeup.hannahc.be/api";
 
-export const fetchEntries = createAsyncThunk<Entry[], void>(
+export const fetchEntries = createAsyncThunk<Entry[]>(
   "entries/fetchEntries",
-  async (_, { rejectWithValue }) => {
+  async (_, { rejectWithValue, getState }) => {
     try {
+      const state = getState() as RootState;
+      const token = state.auth.token;
+
+      if (!token) {
+        console.error("No token found in state");
+        return rejectWithValue("No token found");
+      }
+
       console.log("Fetching entries...");
+      console.log("Token:", token);
+
       const response = await fetch(`${API_BASE_URL}/entries`, {
-        credentials: "include",
         headers: {
+          "Content-Type": "application/json",
           Accept: "application/json",
+          Authorization: `Bearer ${token}`,
         },
+        credentials: "include",
       });
 
       console.log("Entries response status:", response.status);
+      console.log(
+        "Response headers:",
+        Object.fromEntries(response.headers.entries())
+      );
+
       if (!response.ok) {
-        const error = await response.json();
-        console.error("Entries error:", error);
-        return rejectWithValue(error.message || "Failed to fetch entries");
+        const errorData = await response.json();
+        console.error("Entries error:", errorData);
+        return rejectWithValue(errorData.message || "Failed to fetch entries");
       }
 
       const data = await response.json();
-      console.log("Entries data:", data);
+      console.log("Entries response data:", data);
       return data;
     } catch (error) {
-      console.error("Entries fetch error:", error);
+      console.error("Fetch entries error:", error);
       if (error instanceof Error) {
         return rejectWithValue(error.message);
       }
@@ -57,17 +75,26 @@ export const fetchEntries = createAsyncThunk<Entry[], void>(
 
 export const addEntry = createAsyncThunk<Entry, string>(
   "entries/addEntry",
-  async (content, { rejectWithValue }) => {
+  async (content, { rejectWithValue, getState }) => {
     try {
+      const state = getState() as RootState;
+      const token = state.auth.token;
+
+      if (!token) {
+        console.error("No token found in state");
+        return rejectWithValue("No token found");
+      }
+
       console.log("Adding entry with content:", content);
       console.log("API URL:", `${API_BASE_URL}/entries`);
-      console.log("Cookies:", document.cookie);
+      console.log("Token:", token);
 
       const response = await fetch(`${API_BASE_URL}/entries`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
+          Authorization: `Bearer ${token}`,
         },
         credentials: "include",
         body: JSON.stringify({ content }),
@@ -101,51 +128,97 @@ export const addEntry = createAsyncThunk<Entry, string>(
 export const updateEntry = createAsyncThunk<
   Entry,
   { id: string; text: string }
->("entries/updateEntry", async ({ id, text }, { rejectWithValue }) => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/entries/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({ content: text }),
-    });
+>(
+  "entries/updateEntry",
+  async ({ id, text }, { rejectWithValue, getState }) => {
+    try {
+      const state = getState() as RootState;
+      const token = state.auth.token;
 
-    if (!response.ok) {
-      const error = await response.json();
-      return rejectWithValue(error.message || "Failed to update entry");
-    }
+      if (!token) {
+        console.error("No token found in state");
+        return rejectWithValue("No token found");
+      }
 
-    return response.json();
-  } catch (error) {
-    if (error instanceof Error) {
-      return rejectWithValue(error.message);
+      console.log("Updating entry:", { id, text });
+      console.log("Token:", token);
+
+      const response = await fetch(`${API_BASE_URL}/entries/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: "include",
+        body: JSON.stringify({ content: text }),
+      });
+
+      console.log("Update entry response status:", response.status);
+      console.log(
+        "Response headers:",
+        Object.fromEntries(response.headers.entries())
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Update entry error:", errorData);
+        return rejectWithValue(errorData.message || "Failed to update entry");
+      }
+
+      const data = await response.json();
+      console.log("Update entry response data:", data);
+      return data;
+    } catch (error) {
+      console.error("Update entry error:", error);
+      if (error instanceof Error) {
+        return rejectWithValue(error.message);
+      }
+      return rejectWithValue("An unexpected error occurred");
     }
-    return rejectWithValue("An unexpected error occurred");
   }
-});
+);
 
 export const deleteEntry = createAsyncThunk<string, string>(
   "entries/deleteEntry",
-  async (id, { rejectWithValue }) => {
+  async (id, { rejectWithValue, getState }) => {
     try {
+      const state = getState() as RootState;
+      const token = state.auth.token;
+
+      if (!token) {
+        console.error("No token found in state");
+        return rejectWithValue("No token found");
+      }
+
+      console.log("Deleting entry:", id);
+      console.log("Token:", token);
+
       const response = await fetch(`${API_BASE_URL}/entries/${id}`, {
         method: "DELETE",
-        credentials: "include",
         headers: {
+          "Content-Type": "application/json",
           Accept: "application/json",
+          Authorization: `Bearer ${token}`,
         },
+        credentials: "include",
       });
 
+      console.log("Delete entry response status:", response.status);
+      console.log(
+        "Response headers:",
+        Object.fromEntries(response.headers.entries())
+      );
+
       if (!response.ok) {
-        const error = await response.json();
-        return rejectWithValue(error.message || "Failed to delete entry");
+        const errorData = await response.json();
+        console.error("Delete entry error:", errorData);
+        return rejectWithValue(errorData.message || "Failed to delete entry");
       }
 
       return id;
     } catch (error) {
+      console.error("Delete entry error:", error);
       if (error instanceof Error) {
         return rejectWithValue(error.message);
       }

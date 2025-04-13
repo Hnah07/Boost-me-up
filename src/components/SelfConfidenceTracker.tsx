@@ -183,52 +183,148 @@ export default function SelfConfidenceTracker() {
 
   return (
     <div className="container">
-      <div className="floating-entries">
-        {floatingEntries.map((floatingEntry) => (
-          <div
-            key={floatingEntry.id}
-            className={`floating-entry ${
-              floatingEntry.visible ? "visible" : ""
-            }`}
-            style={{
-              left: floatingEntry.x,
-              top: floatingEntry.y,
-            }}
-          >
-            <div className="floating-entry-text">{floatingEntry.text}</div>
-            <div className="floating-entry-timestamp">
-              {floatingEntry.timestamp}
-            </div>
+      {!isLoggedIn ? (
+        <div className="login-message">
+          <p>Please log in to view and add entries.</p>
+          <button onClick={() => setIsModalOpen(true)}>Log In</button>
+        </div>
+      ) : (
+        <>
+          <div className="floating-entries">
+            {floatingEntries.map((floatingEntry) => (
+              <div
+                key={floatingEntry.id}
+                className={`floating-entry ${
+                  floatingEntry.visible ? "visible" : ""
+                }`}
+                style={{
+                  left: floatingEntry.x,
+                  top: floatingEntry.y,
+                }}
+              >
+                <div className="floating-entry-text">{floatingEntry.text}</div>
+                <div className="floating-entry-timestamp">
+                  {floatingEntry.timestamp}
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-      <motion.div
-        className="card"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <h3 className="greeting">
-          Hey,{" "}
-          <span
-            className="username-display"
-            onClick={() => setIsModalOpen(true)}
+          <motion.div
+            className="card"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
           >
-            {isLoggedIn ? username || "anoniempje" : "anoniempje"}
-          </span>
-        </h3>
-        <h2 className="title">Wat heb je goed gedaan?</h2>
-        <input
-          type="text"
-          value={entry}
-          onChange={(e) => setEntry(e.target.value)}
-          placeholder="Typ hier iets positiefs..."
-          className="input"
-        />
-        <button onClick={handleAddEntry} className="button">
-          Toevoegen
-        </button>
-      </motion.div>
+            <h3 className="greeting">
+              Hey,{" "}
+              <span
+                className="username-display"
+                onClick={() => setIsModalOpen(true)}
+              >
+                {isLoggedIn ? username || "anoniempje" : "anoniempje"}
+              </span>
+            </h3>
+            <h2 className="title">Wat heb je goed gedaan?</h2>
+            <input
+              type="text"
+              value={entry}
+              onChange={(e) => setEntry(e.target.value)}
+              placeholder="Typ hier iets positiefs..."
+              className="input"
+            />
+            <button onClick={handleAddEntry} className="button">
+              Toevoegen
+            </button>
+          </motion.div>
+
+          <div className="entries-container">
+            {[...entries].reverse().map((entry, index) => (
+              <motion.div
+                key={entry._id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.1 }}
+                className="entry"
+              >
+                <div className="entry-content">
+                  {editingIndex === entries.length - 1 - index ? (
+                    <input
+                      type="text"
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                      className="input"
+                      autoFocus
+                      onKeyDown={(e) => e.key === "Enter" && handleSaveEdit()}
+                    />
+                  ) : (
+                    <>
+                      <span className="entry-text">{entry.content}</span>
+                      <span className="entry-timestamp">
+                        {formatDate(entry.createdAt)}
+                      </span>
+                    </>
+                  )}
+                </div>
+                <div className="entry-buttons">
+                  {editingIndex === entries.length - 1 - index ? (
+                    <button
+                      onClick={handleSaveEdit}
+                      className="edit-button"
+                      title="Save"
+                    >
+                      <svg
+                        className="icon"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                        <polyline points="17 21 17 13 7 13 7 21" />
+                        <polyline points="7 3 7 8 15 8" />
+                      </svg>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleEditEntry(index)}
+                      className="edit-button"
+                      title="Edit"
+                    >
+                      <svg
+                        className="icon"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                      </svg>
+                    </button>
+                  )}
+                  <button
+                    onClick={() => handleDeleteClick(entry._id, entry.content)}
+                    className="delete-button"
+                    title="Delete"
+                  >
+                    <svg
+                      className="icon"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path d="M3 6h18" />
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                      <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                    </svg>
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </>
+      )}
 
       <LoginModal
         isOpen={isModalOpen}
@@ -241,93 +337,6 @@ export default function SelfConfidenceTracker() {
         currentEmail={email || undefined}
         error={authError}
       />
-
-      <div className="entries-container">
-        {[...entries].reverse().map((entry, index) => (
-          <motion.div
-            key={entry._id}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3, delay: index * 0.1 }}
-            className="entry"
-          >
-            <div className="entry-content">
-              {editingIndex === entries.length - 1 - index ? (
-                <input
-                  type="text"
-                  value={editText}
-                  onChange={(e) => setEditText(e.target.value)}
-                  className="input"
-                  autoFocus
-                  onKeyDown={(e) => e.key === "Enter" && handleSaveEdit()}
-                />
-              ) : (
-                <>
-                  <span className="entry-text">{entry.content}</span>
-                  <span className="entry-timestamp">
-                    {formatDate(entry.createdAt)}
-                  </span>
-                </>
-              )}
-            </div>
-            <div className="entry-buttons">
-              {editingIndex === entries.length - 1 - index ? (
-                <button
-                  onClick={handleSaveEdit}
-                  className="edit-button"
-                  title="Save"
-                >
-                  <svg
-                    className="icon"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-                    <polyline points="17 21 17 13 7 13 7 21" />
-                    <polyline points="7 3 7 8 15 8" />
-                  </svg>
-                </button>
-              ) : (
-                <button
-                  onClick={() => handleEditEntry(index)}
-                  className="edit-button"
-                  title="Edit"
-                >
-                  <svg
-                    className="icon"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                  </svg>
-                </button>
-              )}
-              <button
-                onClick={() => handleDeleteClick(entry._id, entry.content)}
-                className="delete-button"
-                title="Delete"
-              >
-                <svg
-                  className="icon"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M3 6h18" />
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
-                  <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                </svg>
-              </button>
-            </div>
-          </motion.div>
-        ))}
-      </div>
 
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}
