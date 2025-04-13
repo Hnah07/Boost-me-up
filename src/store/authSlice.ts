@@ -63,6 +63,8 @@ export const login = createAsyncThunk<
 >("auth/login", async ({ email, password }, { rejectWithValue }) => {
   try {
     console.log("Attempting login with:", { email });
+    console.log("API URL:", `${API_BASE_URL}/auth/login`);
+
     const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: "POST",
       headers: {
@@ -74,6 +76,11 @@ export const login = createAsyncThunk<
     });
 
     console.log("Login response status:", response.status);
+    console.log(
+      "Response headers:",
+      Object.fromEntries(response.headers.entries())
+    );
+
     const responseData = await response.json();
     console.log("Full response data:", responseData);
 
@@ -93,14 +100,20 @@ export const login = createAsyncThunk<
       },
     });
 
+    console.log("Profile response status:", profileResponse.status);
+    console.log(
+      "Profile response headers:",
+      Object.fromEntries(profileResponse.headers.entries())
+    );
+
     if (!profileResponse.ok) {
-      throw new Error("Failed to fetch user profile");
+      const profileError = await profileResponse.json();
+      console.error("Profile fetch error:", profileError);
+      throw new Error(profileError.message || "Failed to fetch user profile");
     }
 
     const profileData = await profileResponse.json();
-    console.log("Profile response:", profileData);
-    console.log("User data from profile:", profileData.user);
-    console.log("Username from profile:", profileData.user?.username);
+    console.log("Profile data:", profileData);
 
     return {
       ...responseData,

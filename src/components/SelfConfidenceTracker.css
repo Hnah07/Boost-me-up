@@ -14,13 +14,13 @@ body {
 }
 
 .container {
+  min-height: 100vh; /* Fallback for older browsers */
+  min-height: 100svh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 100vh;
-  padding: 1rem;
-  box-sizing: border-box;
-  width: 100%;
+  padding: 2rem;
+  background-color: #f8f9fa;
   position: relative;
   overflow: hidden;
 }
@@ -328,6 +328,8 @@ body {
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  min-height: 100vh; /* Fallback for older browsers */
+  min-height: 100svh;
 }
 
 .modal-content {
