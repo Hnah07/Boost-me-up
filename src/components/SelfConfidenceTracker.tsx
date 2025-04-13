@@ -238,7 +238,7 @@ export default function SelfConfidenceTracker() {
           </motion.div>
 
           <div className="entries-container">
-            {[...entries].reverse().map((entry, index) => (
+            {entries.map((entry, index) => (
               <motion.div
                 key={entry._id}
                 initial={{ opacity: 0, x: -20 }}
