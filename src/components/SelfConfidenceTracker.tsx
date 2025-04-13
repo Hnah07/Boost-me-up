@@ -134,9 +134,8 @@ export default function SelfConfidenceTracker() {
   };
 
   const handleEditEntry = (index: number) => {
-    const actualIndex = entries.length - 1 - index;
-    setEditingIndex(actualIndex);
-    setEditText(entries[actualIndex].content);
+    setEditingIndex(index);
+    setEditText(entries[index].content);
   };
 
   const handleSaveEdit = () => {
@@ -184,10 +183,20 @@ export default function SelfConfidenceTracker() {
   return (
     <div className="container">
       {!isLoggedIn ? (
-        <div className="login-message">
-          <p>Please log in to view and add entries.</p>
-          <button onClick={() => setIsModalOpen(true)}>Log In</button>
-        </div>
+        <motion.div
+          className="card"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <h2 className="title">Wat heb je goed gedaan?</h2>
+          <p className="login-message">
+            Log in om je positieve momenten te delen en te bekijken.
+          </p>
+          <button onClick={() => setIsModalOpen(true)} className="button">
+            Log In
+          </button>
+        </motion.div>
       ) : (
         <>
           <div className="floating-entries">
@@ -247,7 +256,7 @@ export default function SelfConfidenceTracker() {
                 className="entry"
               >
                 <div className="entry-content">
-                  {editingIndex === entries.length - 1 - index ? (
+                  {editingIndex === index ? (
                     <input
                       type="text"
                       value={editText}
@@ -266,7 +275,7 @@ export default function SelfConfidenceTracker() {
                   )}
                 </div>
                 <div className="entry-buttons">
-                  {editingIndex === entries.length - 1 - index ? (
+                  {editingIndex === index ? (
                     <button
                       onClick={handleSaveEdit}
                       className="edit-button"
