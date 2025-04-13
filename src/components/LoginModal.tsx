@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState, AppDispatch } from "../store";
+import { useState } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "../store";
 import "./LoginModal.css";
 
 interface LoginModalProps {
@@ -26,7 +26,6 @@ export default function LoginModal({
   currentEmail,
   error,
 }: LoginModalProps) {
-  const dispatch = useDispatch<AppDispatch>();
   const { entries } = useSelector((state: RootState) => state.entries);
 
   const [username, setUsername] = useState("");
