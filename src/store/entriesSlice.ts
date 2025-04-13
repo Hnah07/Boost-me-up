@@ -22,7 +22,7 @@ const initialState: EntriesState = {
   error: null,
 };
 
-const API_BASE_URL = "https://boost-me-up-backend.onrender.com/api";
+const API_BASE_URL = "https://api.boostmeup.hannahc.be/api";
 
 export const fetchEntries = createAsyncThunk<Entry[], void>(
   "entries/fetchEntries",

@@ -29,7 +29,7 @@ interface AuthState {
   token: string | null;
 }
 
-const API_BASE_URL = "https://boost-me-up-backend.onrender.com/api";
+const API_BASE_URL = "https://api.boostmeup.hannahc.be/api";
 
 // Load initial state from localStorage
 const loadInitialState = () => {
