@@ -1,5 +1,4 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { RootState } from "../store";
 
 interface Entry {
   _id: string;
@@ -58,11 +57,11 @@ export const fetchEntries = createAsyncThunk<Entry[], void>(
 
 export const addEntry = createAsyncThunk<Entry, string>(
   "entries/addEntry",
-  async (text, { rejectWithValue, getState }) => {
+  async (content, { rejectWithValue }) => {
     try {
-      console.log("Adding entry:", text);
-      const state = getState() as RootState;
-      const userId = state.auth.email;
+      console.log("Adding entry with content:", content);
+      console.log("API URL:", `${API_BASE_URL}/entries`);
+      console.log("Cookies:", document.cookie);
 
       const response = await fetch(`${API_BASE_URL}/entries`, {
         method: "POST",
@@ -71,31 +70,24 @@ export const addEntry = createAsyncThunk<Entry, string>(
           Accept: "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({
-          content: text,
-          user: userId,
-        }),
+        body: JSON.stringify({ content }),
       });
 
       console.log("Add entry response status:", response.status);
       console.log(
-        "Add entry response headers:",
+        "Response headers:",
         Object.fromEntries(response.headers.entries())
       );
 
-      const responseData = await response.json();
-      console.log("Full response data:", responseData);
-
       if (!response.ok) {
-        console.error("Add entry error details:", {
-          status: response.status,
-          statusText: response.statusText,
-          data: responseData,
-        });
-        return rejectWithValue(responseData.message || "Failed to add entry");
+        const errorData = await response.json();
+        console.error("Add entry error:", errorData);
+        return rejectWithValue(errorData.message || "Failed to add entry");
       }
 
-      return responseData;
+      const data = await response.json();
+      console.log("Add entry response data:", data);
+      return data;
     } catch (error) {
       console.error("Add entry error:", error);
       if (error instanceof Error) {
