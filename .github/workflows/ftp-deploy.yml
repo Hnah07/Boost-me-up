@@ -35,3 +35,4 @@ jobs:
           server-dir: ${{ secrets.FTP_REMOTE_DIR }}
           protocol: ftp
           passive: true
+          dangerous-clean-slate: true
