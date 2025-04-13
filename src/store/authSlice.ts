@@ -27,6 +27,9 @@ interface AuthState {
   loading: boolean;
   error: string | null;
   token: string | null;
+  stats: {
+    totalEntries: number;
+  };
 }
 
 const API_BASE_URL = "https://boost-me-up-backend.onrender.com/api";
@@ -45,6 +48,10 @@ const loadInitialState = () => {
     email: null,
     loading: false,
     error: null,
+    token: null,
+    stats: {
+      totalEntries: 0,
+    },
   };
 };
 
@@ -212,6 +219,39 @@ export const logout = createAsyncThunk<void, void, { state: RootState }>(
   }
 );
 
+export const fetchUserStats = createAsyncThunk(
+  "auth/fetchUserStats",
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const state = getState() as RootState;
+      const token = state.auth.token;
+
+      if (!token) {
+        return rejectWithValue("No token found");
+      }
+
+      const response = await fetch(`${API_BASE_URL}/auth/stats`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch stats");
+      }
+
+      const data = await response.json();
+      return { totalEntries: data.totalEntries };
+    } catch (error) {
+      if (error instanceof Error) {
+        return rejectWithValue(error.message);
+      }
+      return rejectWithValue("An unexpected error occurred");
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -295,6 +335,12 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
         saveStateToLocalStorage(state);
+      })
+      .addCase(fetchUserStats.fulfilled, (state, action) => {
+        state.stats = action.payload;
+      })
+      .addCase(fetchUserStats.rejected, (state, action) => {
+        console.error("Failed to fetch stats:", action.payload);
       });
   },
 });

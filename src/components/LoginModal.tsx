@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState, AppDispatch } from "../store";
 import "./LoginModal.css";
 
 interface LoginModalProps {
@@ -24,6 +26,9 @@ export default function LoginModal({
   currentEmail,
   error,
 }: LoginModalProps) {
+  const dispatch = useDispatch<AppDispatch>();
+  const { entries } = useSelector((state: RootState) => state.entries);
+
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -51,22 +56,62 @@ export default function LoginModal({
     }
   };
 
+  const getTodayEntries = () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return entries.filter((entry) => {
+      const entryDate = new Date(entry.createdAt);
+      return entryDate >= today;
+    }).length;
+  };
+
+  const getThisWeekEntries = () => {
+    const today = new Date();
+    const day = today.getDay();
+    const diff = today.getDate() - day + (day === 0 ? -6 : 1); // Aanpassen wanneer het zondag is
+    const monday = new Date(today.setDate(diff));
+    monday.setHours(0, 0, 0, 0);
+    return entries.filter((entry) => {
+      const entryDate = new Date(entry.createdAt);
+      return entryDate >= monday;
+    }).length;
+  };
+
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <button className="close-button" onClick={onClose}>
-          ×
+    <div className={`modal-overlay ${isOpen ? "open" : ""}`}>
+      <div className="modal-content">
+        <button onClick={onClose} className="close-button">
+          Sluiten
         </button>
 
         {isLoggedIn ? (
-          <div className="logged-in-content">
-            <h2>
-              Hey, {currentUsername || currentEmail?.split("@")[0] || "gast"}!
-            </h2>
-            <button onClick={onLogout} className="logout-button">
+          <>
+            <h2 className="modal-title">Profiel</h2>
+            <div className="profile-info">
+              <p>Gebruikersnaam: {currentUsername}</p>
+              <p>Email: {currentEmail}</p>
+            </div>
+            <div className="stats-container">
+              <h3>Statistieken</h3>
+              <div className="stats-grid">
+                <div className="stat-item">
+                  <span className="stat-label">Totaal entries</span>
+                  <span className="stat-value">{entries.length}</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-label">Vandaag</span>
+                  <span className="stat-value">{getTodayEntries()}</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-label">Deze week</span>
+                  <span className="stat-value">{getThisWeekEntries()}</span>
+                </div>
+              </div>
+            </div>
+            <button onClick={onLogout} className="button">
               Uitloggen
             </button>
-          </div>
+          </>
         ) : (
           <form onSubmit={handleSubmit}>
             <h2>{isRegistering ? "Registreren" : "Inloggen"}</h2>

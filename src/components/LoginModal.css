@@ -123,3 +123,51 @@
   text-align: center;
   font-size: 0.875rem;
 }
+
+.profile-info {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.profile-info p {
+  margin: 0.5rem 0;
+  color: #ea580c;
+}
+
+.stats-container {
+  margin-bottom: 2rem;
+}
+
+.stats-container h3 {
+  text-align: center;
+  color: #ea580c;
+  margin-bottom: 1rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.stat-item {
+  background-color: #ffedd5;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: #ea580c;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #ea580c;
+}
