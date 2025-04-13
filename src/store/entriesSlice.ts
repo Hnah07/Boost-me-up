@@ -78,6 +78,11 @@ export const addEntry = createAsyncThunk<Entry, string>(
       });
 
       console.log("Add entry response status:", response.status);
+      console.log(
+        "Add entry response headers:",
+        Object.fromEntries(response.headers.entries())
+      );
+
       const responseData = await response.json();
       console.log("Full response data:", responseData);
 
