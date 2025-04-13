@@ -339,7 +339,7 @@ const authSlice = createSlice({
       .addCase(fetchUserStats.fulfilled, (state, action) => {
         state.stats = action.payload;
       })
-      .addCase(fetchUserStats.rejected, (state, action) => {
+      .addCase(fetchUserStats.rejected, (_, action) => {
         console.error("Failed to fetch stats:", action.payload);
       });
   },
