@@ -38,7 +38,7 @@ Instead of being just another task list, Boost Me Up feels ambient, motivational
 
 ## 🧠 Tech Stack
 
-- **Frontend**: React, TypeScript, Vite, Framer Motion, TailwindCSS
+- **Frontend**: React, TypeScript, Vite, Framer Motion, CSS
 - **Backend**: Node.js + Express API ([see repo](https://github.com/Hnah07/boost-me-up-backend))
 - **Database**: MongoDB
 - **Authentication**: JWT-based login system
