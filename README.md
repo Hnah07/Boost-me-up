@@ -69,7 +69,7 @@ This project was co-developed with the assistance of **Claude**, an AI assistant
 
 ## 🤝 Let’s connect
 
-I'm Hannah — a full stack developer in opleiding, with a passion for building web apps that are both functional and delightful.  
+I'm Hannah — a full stack developer student, with a passion for building web apps that are both functional and delightful.  
 
 👉 [GitHub](https://github.com/Hnah07)
 
